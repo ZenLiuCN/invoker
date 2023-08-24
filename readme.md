@@ -28,83 +28,111 @@ InvokerBenchmarkTest.reflectObject            avgt   18  1108.931 ±  5.922  ns/
 
 ```
 
+## Usage
+
+```xml
+
+<dependency>
+   <groupId>io.github.zenliucn</groupId>
+   <artifactId>invoker</artifactId>
+   <version>0.0.2</version>
+</dependency>
+```
+
+```java
+    @Test
+@SneakyThrows
+    void testInvokerMethod(){
+            var lookup=MethodHandles.lookup();
+            var m=String.class.getMethod("toString");
+        var i=Invoker.make(lookup,m);
+        assertTrue(i.hasReturns());
+        assertEquals(0,i.args());
+        assertFalse(i.isStatic());
+        assertEquals("123",i.invoke("123"));
+
+        m=Map.class.getMethod("put",Object.class,Object.class);
+        i=Invoker.make(lookup,m);
+        assertTrue(i.hasReturns());
+        assertEquals(2,i.args());
+        assertFalse(i.isStatic());
+        var is=new HashMap<>();
+        assertNull(i.invoke(is,1,2));
+        assertEquals(2,is.get(1));
+        }
+
+@Test
+@SneakyThrows
+    void testInvokerCtor(){
+            var lookup=MethodHandles.lookup();
+            var m=String.class.getConstructor(byte[].class);
+        var i=Invoker.make(lookup,m);
+        assertTrue(i.hasReturns());
+        assertEquals(1,i.args());
+        assertTrue(i.isStatic());
+        assertEquals("123",i.invoke(null,(Object)"123".getBytes(StandardCharsets.UTF_8)));
+        }
+
+public static class SomePojo {
+   public final int value;
+   public int value1;
+
+   public SomePojo(int value) {
+      this.value = value;
+   }
+}
+
+   @Test
+   @SneakyThrows
+   void testInvokerField() {
+      var lookup = MethodHandles.lookup();
+      var m = SomePojo.class.getDeclaredField("value");
+      var i = Invoker.makeGetter(lookup, m);
+      assertTrue(i.hasReturns());
+      assertEquals(0, i.args());
+      assertFalse(i.isStatic());
+      assertEquals(1, i.invoke(new SomePojo(1)));
+
+      m = SomePojo.class.getDeclaredField("value1");
+      i = Invoker.makeSetter(lookup, m);
+      assertFalse(i.hasReturns());
+      assertEquals(1, i.args());
+      assertFalse(i.isStatic());
+      var p = new SomePojo(1);
+      p.value1 = 2;
+      assertNull(i.invoke(p, 3));
+      assertEquals(3, p.value1);
+   }
+
+   @Test
+   void fields() {
+      var accessorMap = Accessor.fields(MethodHandles.lookup(), Some.class, null);
+      assertEquals(new HashSet<>(Arrays.asList("val", "fval", "fsval")), accessorMap.keySet());
+      var acc = accessorMap.get("fval");
+      assertFalse(acc.canSet());
+      assertTrue(acc.isPrimitives());
+      var i = new Some(12);
+      assertEquals(12, acc.getter.get(i));
+      assertTrue(acc.getter instanceof Accessor.IntGetter);
+      //static
+      acc = accessorMap.get("fsval");
+      ;
+      assertFalse(acc.canSet());
+      assertTrue(acc.isPrimitives());
+      assertEquals(12345, acc.getter.get(null));
+
+      acc = accessorMap.get("val");
+      assertTrue(acc.canSet());
+      assertFalse(acc.isPrimitives());
+      var finalAcc = acc;
+      assertDoesNotThrow(() -> finalAcc.setter.set(i, 123));
+      assertEquals(123, acc.getter.get(i));
+   }
+```
+
 # Accessor
 
 Wrap of MethodHandle for fields.
-
-## Usage
-```xml
-          <dependency>
-            <groupId>io.github.zenliucn</groupId>
-            <artifactId>invoker</artifactId>
-            <version>0.0.1</version>
-        </dependency>
-```
-```java
-    @Test
-    @SneakyThrows
-    void testInvokerMethod() {
-        var lookup = MethodHandles.lookup();
-        var m = String.class.getMethod("toString");
-        var i = Invoker.make(lookup, m);
-        assertTrue(i.hasReturns());
-        assertEquals(0, i.args());
-        assertFalse(i.isStatic());
-        assertEquals("123", i.invoke("123"));
-
-        m = Map.class.getMethod("put", Object.class, Object.class);
-        i = Invoker.make(lookup, m);
-        assertTrue(i.hasReturns());
-        assertEquals(2, i.args());
-        assertFalse(i.isStatic());
-        var is = new HashMap<>();
-        assertNull(i.invoke(is, 1, 2));
-        assertEquals(2, is.get(1));
-    }
-
-    @Test
-    @SneakyThrows
-    void testInvokerCtor() {
-        var lookup = MethodHandles.lookup();
-        var m = String.class.getConstructor(byte[].class);
-        var i = Invoker.make(lookup, m);
-        assertTrue(i.hasReturns());
-        assertEquals(1, i.args());
-        assertTrue(i.isStatic());
-        assertEquals("123", i.invoke(null, (Object) "123".getBytes(StandardCharsets.UTF_8)));
-    }
-
-    public static class SomePojo {
-        public final int value;
-        public int value1;
-
-        public SomePojo(int value) {
-            this.value = value;
-        }
-    }
-
-    @Test
-    @SneakyThrows
-    void testInvokerField() {
-        var lookup = MethodHandles.lookup();
-        var m = SomePojo.class.getDeclaredField("value");
-        var i = Invoker.makeGetter(lookup, m);
-        assertTrue(i.hasReturns());
-        assertEquals(0, i.args());
-        assertFalse(i.isStatic());
-        assertEquals(1, i.invoke(new SomePojo(1)));
-
-        m = SomePojo.class.getDeclaredField("value1");
-        i = Invoker.makeSetter(lookup, m);
-        assertFalse(i.hasReturns());
-        assertEquals(1, i.args());
-        assertFalse(i.isStatic());
-        var p = new SomePojo(1);
-        p.value1 = 2;
-        assertNull(i.invoke(p, 3));
-        assertEquals(3, p.value1);
-    }
-```
 
 ## Benchmark
 
