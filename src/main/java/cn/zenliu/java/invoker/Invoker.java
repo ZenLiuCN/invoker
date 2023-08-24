@@ -16,6 +16,7 @@
 package cn.zenliu.java.invoker;
 
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.invoke.LambdaMetafactory;
@@ -26,6 +27,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 import java.util.function.*;
 
 /**
@@ -37,7 +39,7 @@ import java.util.function.*;
 @SuppressWarnings("unused")
 public interface Invoker {
 
-
+    @ApiStatus.AvailableSince("0.0.1")
     /**
      * @param instance the object instance
      * @param args     args of function
@@ -48,26 +50,31 @@ public interface Invoker {
     /**
      * @return does have return value
      */
+    @ApiStatus.AvailableSince("0.0.1")
     boolean hasReturns();
 
     /**
      * Does accept a pure varargs array as parameter, if true, only first arg as array should be passed.
      */
+    @ApiStatus.AvailableSince("0.0.1")
     boolean isOnlyVarArgs();
 
     /**
      * Does require a instance, for constructor, static field, static method, the instance does not require.
      */
+    @ApiStatus.AvailableSince("0.0.1")
     boolean isStatic();
 
     /**
      * How many args required, except the instance.(for varargs always 1)
      */
+    @ApiStatus.AvailableSince("0.0.1")
     int args();
 
     /**
      * Convert invoker to  Function accept objects
      */
+    @ApiStatus.AvailableSince("0.0.1")
     default Function<Object[], Object> asFunction() {
         assert hasReturns() && isStatic() && !isOnlyVarArgs() : "Contract 'isReturns() && isStatic() && !isOnlyVarArgs()' not match";
         return a -> invoke(null, a);
@@ -76,6 +83,7 @@ public interface Invoker {
     /**
      * Convert invoker to Function accept object
      */
+    @ApiStatus.AvailableSince("0.0.1")
     default Function<Object, Object> asStaticFunction() {
         assert hasReturns() && isStatic() && args() == 1 : "Contract 'isReturns() && isStatic() && args() == 1' not match";
         return a -> invoke(null, a);
@@ -84,6 +92,7 @@ public interface Invoker {
     /**
      * Convert to Function accept instance object
      */
+    @ApiStatus.AvailableSince("0.0.1")
     default Function<Object, Object> asInstanceSupplier() {
         assert hasReturns() && !isStatic() && args() == 0 : "Contract 'isReturns() && !isStatic() && args() == 0' not match";
         return this::invoke;
@@ -92,6 +101,7 @@ public interface Invoker {
     /**
      * Convert to a BiFunction accept instance and arguments
      */
+    @ApiStatus.AvailableSince("0.0.1")
     default BiFunction<Object, Object[], Object> asBiFunction() {
         assert hasReturns() && !isStatic() : "not match contract";
         return this::invoke;
@@ -100,6 +110,7 @@ public interface Invoker {
     /**
      * Convert to an Objects Consumer
      */
+    @ApiStatus.AvailableSince("0.0.1")
     default Consumer<Object[]> asConsumer() {
         assert !hasReturns() && isStatic() : "Contract: '!isReturns() && isStatic()' not match";
         return a -> invoke(null, a);
@@ -108,6 +119,7 @@ public interface Invoker {
     /**
      * Convert to an Object Consumer
      */
+    @ApiStatus.AvailableSince("0.0.1")
     default Consumer<Object> asValueConsumer() {
         assert !hasReturns() && isStatic() && args() == 1 : "Contract ' !isReturns() && isStatic() && args() == 1' not match";
         return a -> invoke(null, a);
@@ -116,6 +128,7 @@ public interface Invoker {
     /**
      * Convert to a Runnable
      */
+    @ApiStatus.AvailableSince("0.0.1")
     default Runnable asRunnable() {
         assert !hasReturns() && isStatic() && args() == 0 : "Contract '!isReturns() && isStatic() && args() == 0' not match";
         return () -> invoke(null);
@@ -124,6 +137,7 @@ public interface Invoker {
     /**
      * Convert to a Supplier
      */
+    @ApiStatus.AvailableSince("0.0.1")
     default Supplier<Object> asSupplier() {
         assert hasReturns() && isStatic() && args() == 0 : "Contract 'isReturns() && isStatic() && args() == 0' not match";
         return () -> invoke(null);
@@ -132,11 +146,13 @@ public interface Invoker {
     /**
      * Convert to a BiConsumer
      */
+    @ApiStatus.AvailableSince("0.0.1")
     default BiConsumer<Object, Object[]> asBiConsumer() {
         assert !hasReturns() && !isStatic() : "Contract '!isReturns() && !isStatic()' not match";
         return this::invoke;
     }
 
+    @ApiStatus.AvailableSince("0.0.1")
     @SneakyThrows
     static Invoker build(MethodHandles.Lookup lookup, MethodHandle handle, boolean isStatic, boolean isVarArgs, boolean hasReturn, int argumentCounts) {
         MethodType sam = handle.type().wrap().generic();
@@ -1170,6 +1186,7 @@ public interface Invoker {
         }
     }
 
+    @ApiStatus.AvailableSince("0.0.1")
     @SneakyThrows
     static Invoker make(MethodHandles.Lookup lookup, Method m) {
         m.setAccessible(true);
@@ -1182,6 +1199,7 @@ public interface Invoker {
         return build(lookup, handle, isStatic, isVararg, hasReturn, counts);
     }
 
+    @ApiStatus.AvailableSince("0.0.1")
     @SneakyThrows
     static Invoker make(MethodHandles.Lookup lookup, Constructor<?> m) {
         m.setAccessible(true);
@@ -1191,6 +1209,7 @@ public interface Invoker {
         return build(lookup, handle, true, isVararg, true, counts);
     }
 
+    @ApiStatus.AvailableSince("0.0.1")
     @SneakyThrows
     static Invoker makeGetter(MethodHandles.Lookup lookup, Field m) {
         m.setAccessible(true);
@@ -1201,6 +1220,7 @@ public interface Invoker {
                 : (Invoker) (ix10) o -> inv(handle, o);
     }
 
+    @ApiStatus.AvailableSince("0.0.1")
     @SneakyThrows
     static Invoker makeSetter(MethodHandles.Lookup lookup, Field m) {
         m.setAccessible(true);
@@ -1211,23 +1231,2038 @@ public interface Invoker {
                 : (Invoker) (ix01) (o, a) -> invA(handle, o, a);
     }
 
+    @ApiStatus.Internal
     @SneakyThrows
     static Object inv(MethodHandle handle) {
         return handle.invoke((Object) null);
     }
 
+    @ApiStatus.Internal
     @SneakyThrows
     static Object inv(MethodHandle handle, Object o) {
         return handle.invoke(o);
     }
 
+    @ApiStatus.Internal
     @SneakyThrows
     static Object invA(MethodHandle handle, Object a) {
         return handle.invoke(null, a);
     }
 
+    @ApiStatus.Internal
     @SneakyThrows
     static Object invA(MethodHandle handle, Object o, Object a) {
         return handle.invoke(o, a);
     }
+
+    //region SAM
+    interface iv01 extends sam {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0]);
+            return null;
+        }
+
+        void i(Object instance, Object arg0);
+
+        @Override
+        default boolean hasReturns() {
+            return false;
+        }
+
+        @Override
+        default boolean isOnlyVarArgs() {
+            return true;
+        }
+
+        @Override
+        default boolean isStatic() {
+            return false;
+        }
+
+        @Override
+        default int args() {
+            return 1;
+        }
+    }
+
+
+    interface iv11 extends sam {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0]);
+        }
+
+        Object i(Object instance, Object arg0);
+
+        @Override
+        default boolean hasReturns() {
+            return true;
+        }
+
+        @Override
+        default boolean isOnlyVarArgs() {
+            return true;
+        }
+
+        @Override
+        default boolean isStatic() {
+            return false;
+        }
+
+        @Override
+        default int args() {
+            return 1;
+        }
+    }
+
+
+    interface ix0 extends sam {
+        @Override
+        default boolean hasReturns() {
+            return false;
+        }
+
+        @Override
+        default boolean isOnlyVarArgs() {
+            return false;
+        }
+
+        @Override
+        default boolean isStatic() {
+            return false;
+        }
+    }
+
+    interface ix00 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"));
+            return null;
+        }
+
+        Object i(Object instance);
+
+        @Override
+        default int args() {
+            return 0;
+        }
+    }
+
+
+    interface ix1 extends sam {
+        @Override
+        default boolean hasReturns() {
+            return true;
+        }
+
+        @Override
+        default boolean isOnlyVarArgs() {
+            return false;
+        }
+
+        @Override
+        default boolean isStatic() {
+            return false;
+        }
+    }
+
+    interface ix01 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0);
+
+        @Override
+        default int args() {
+            return 1;
+        }
+    }
+
+    interface ix02 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1);
+
+        @Override
+        default int args() {
+            return 2;
+        }
+    }
+
+    interface ix03 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2);
+
+        @Override
+        default int args() {
+            return 3;
+        }
+    }
+
+    interface ix04 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3);
+
+        @Override
+        default int args() {
+            return 4;
+        }
+    }
+
+    interface ix05 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4);
+
+        @Override
+        default int args() {
+            return 5;
+        }
+    }
+
+    interface ix06 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5);
+
+        @Override
+        default int args() {
+            return 6;
+        }
+    }
+
+    interface ix07 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6);
+
+        @Override
+        default int args() {
+            return 7;
+        }
+    }
+
+    interface ix08 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7);
+
+        @Override
+        default int args() {
+            return 8;
+        }
+    }
+
+    interface ix09 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8);
+
+        @Override
+        default int args() {
+            return 9;
+        }
+    }
+
+    interface ix10 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"));
+        }
+
+        Object i(Object instance);
+
+        @Override
+        default int args() {
+            return 0;
+        }
+    }
+
+    interface ix010 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9);
+
+        @Override
+        default int args() {
+            return 10;
+        }
+    }
+
+    interface ix11 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0]);
+        }
+
+        Object i(Object instance, Object a0);
+
+        @Override
+        default int args() {
+            return 1;
+        }
+    }
+
+    interface ix011 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10);
+
+        @Override
+        default int args() {
+            return 11;
+        }
+    }
+
+    interface ix12 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1]);
+        }
+
+        Object i(Object instance, Object a0, Object a1);
+
+        @Override
+        default int args() {
+            return 2;
+        }
+    }
+
+    interface ix012 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11);
+
+        @Override
+        default int args() {
+            return 12;
+        }
+    }
+
+    interface ix13 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2);
+
+        @Override
+        default int args() {
+            return 3;
+        }
+    }
+
+    interface ix013 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12);
+
+        @Override
+        default int args() {
+            return 13;
+        }
+    }
+
+    interface ix14 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3);
+
+        @Override
+        default int args() {
+            return 4;
+        }
+    }
+
+    interface ix014 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13);
+
+        @Override
+        default int args() {
+            return 14;
+        }
+    }
+
+    interface ix15 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4);
+
+        @Override
+        default int args() {
+            return 5;
+        }
+    }
+
+    interface ix015 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14);
+
+        @Override
+        default int args() {
+            return 15;
+        }
+    }
+
+    interface ix16 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5);
+
+        @Override
+        default int args() {
+            return 6;
+        }
+    }
+
+    interface ix016 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15);
+
+        @Override
+        default int args() {
+            return 16;
+        }
+    }
+
+    interface ix17 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6);
+
+        @Override
+        default int args() {
+            return 7;
+        }
+    }
+
+    interface ix017 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16);
+
+        @Override
+        default int args() {
+            return 17;
+        }
+    }
+
+    interface ix18 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7);
+
+        @Override
+        default int args() {
+            return 8;
+        }
+    }
+
+    interface ix018 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17);
+
+        @Override
+        default int args() {
+            return 18;
+        }
+    }
+
+    interface ix19 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8);
+
+        @Override
+        default int args() {
+            return 9;
+        }
+    }
+
+    interface ix019 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18);
+
+        @Override
+        default int args() {
+            return 19;
+        }
+    }
+
+    interface ix020 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19);
+
+        @Override
+        default int args() {
+            return 20;
+        }
+    }
+
+    interface ix021 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20);
+
+        @Override
+        default int args() {
+            return 21;
+        }
+    }
+
+    interface ix022 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21);
+
+        @Override
+        default int args() {
+            return 22;
+        }
+    }
+
+    interface ix023 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22);
+
+        @Override
+        default int args() {
+            return 23;
+        }
+    }
+
+    interface ix024 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23);
+
+        @Override
+        default int args() {
+            return 24;
+        }
+    }
+
+    interface ix025 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24);
+
+        @Override
+        default int args() {
+            return 25;
+        }
+    }
+
+    interface ix026 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25);
+
+        @Override
+        default int args() {
+            return 26;
+        }
+    }
+
+    interface ix027 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26);
+
+        @Override
+        default int args() {
+            return 27;
+        }
+    }
+
+    interface ix028 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26], args[27]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26, Object a27);
+
+        @Override
+        default int args() {
+            return 28;
+        }
+    }
+
+    interface ix029 extends ix0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26], args[27], args[28]);
+            return null;
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26, Object a27, Object a28);
+
+        @Override
+        default int args() {
+            return 29;
+        }
+    }
+
+    interface ix110 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9);
+
+        @Override
+        default int args() {
+            return 10;
+        }
+    }
+
+    interface ix111 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10);
+
+        @Override
+        default int args() {
+            return 11;
+        }
+    }
+
+    interface ix112 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11);
+
+        @Override
+        default int args() {
+            return 12;
+        }
+    }
+
+    interface ix113 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12);
+
+        @Override
+        default int args() {
+            return 13;
+        }
+    }
+
+    interface ix114 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13);
+
+        @Override
+        default int args() {
+            return 14;
+        }
+    }
+
+    interface ix115 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14);
+
+        @Override
+        default int args() {
+            return 15;
+        }
+    }
+
+    interface ix116 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15);
+
+        @Override
+        default int args() {
+            return 16;
+        }
+    }
+
+    interface ix117 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16);
+
+        @Override
+        default int args() {
+            return 17;
+        }
+    }
+
+    interface ix118 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17);
+
+        @Override
+        default int args() {
+            return 18;
+        }
+    }
+
+    interface ix119 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18);
+
+        @Override
+        default int args() {
+            return 19;
+        }
+    }
+
+    interface ix120 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19);
+
+        @Override
+        default int args() {
+            return 20;
+        }
+    }
+
+    interface ix121 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20);
+
+        @Override
+        default int args() {
+            return 21;
+        }
+    }
+
+    interface ix122 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21);
+
+        @Override
+        default int args() {
+            return 22;
+        }
+    }
+
+    interface ix123 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22);
+
+        @Override
+        default int args() {
+            return 23;
+        }
+    }
+
+    interface ix124 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23);
+
+        @Override
+        default int args() {
+            return 24;
+        }
+    }
+
+    interface ix125 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24);
+
+        @Override
+        default int args() {
+            return 25;
+        }
+    }
+
+    interface ix126 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25);
+
+        @Override
+        default int args() {
+            return 26;
+        }
+    }
+
+    interface ix127 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26);
+
+        @Override
+        default int args() {
+            return 27;
+        }
+    }
+
+    interface ix128 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26], args[27]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26, Object a27);
+
+        @Override
+        default int args() {
+            return 28;
+        }
+    }
+
+    interface ix129 extends ix1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            return i(Objects.requireNonNull(instance, "instance required"), args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26], args[27], args[28]);
+        }
+
+        Object i(Object instance, Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26, Object a27, Object a28);
+
+        @Override
+        default int args() {
+            return 29;
+        }
+    }
+
+    /**
+     * Naming strategy:<br/>
+     * 1. i or s : instance or static. <br/>
+     * 2. v or x : simple one varargs or complex. <br/>
+     * 3. 0 or 1: no return or returns.<br/>
+     * 4. 0 - 30: arguments count.<br/>
+     *
+     * @author Zen.Liu
+     * @since 2023-08-23
+     */
+    interface sam extends Invoker {
+
+    }
+
+
+    interface sv01 extends sam {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(null, args[0]);
+            return null;
+        }
+
+        void i(Object instance, Object arg0);
+
+        @Override
+        default boolean hasReturns() {
+            return false;
+        }
+
+        @Override
+        default boolean isOnlyVarArgs() {
+            return true;
+        }
+
+        @Override
+        default boolean isStatic() {
+            return true;
+        }
+
+        @Override
+        default int args() {
+            return 1;
+        }
+    }
+
+
+    interface sv11 extends sam {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(null, args[0]);
+        }
+
+        Object i(Object instance, Object arg0);
+
+        @Override
+        default boolean hasReturns() {
+            return false;
+        }
+
+        @Override
+        default boolean isOnlyVarArgs() {
+            return true;
+        }
+
+        @Override
+        default boolean isStatic() {
+            return false;
+        }
+
+        @Override
+        default int args() {
+            return 1;
+        }
+    }
+
+
+    interface sx0 extends sam {
+        @Override
+        default boolean hasReturns() {
+            return false;
+        }
+
+        @Override
+        default boolean isOnlyVarArgs() {
+            return false;
+        }
+
+        @Override
+        default boolean isStatic() {
+            return true;
+        }
+    }
+
+    interface sx00 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i();
+            return null;
+        }
+
+        Object i();
+
+        @Override
+        default int args() {
+            return 0;
+        }
+    }
+
+
+    interface sx1 extends sam {
+        @Override
+        default boolean hasReturns() {
+            return true;
+        }
+
+        @Override
+        default boolean isOnlyVarArgs() {
+            return false;
+        }
+
+        @Override
+        default boolean isStatic() {
+            return true;
+        }
+    }
+
+    interface sx01 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0]);
+            return null;
+        }
+
+        Object i(Object a0);
+
+        @Override
+        default int args() {
+            return 1;
+        }
+    }
+
+    interface sx02 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1);
+
+        @Override
+        default int args() {
+            return 2;
+        }
+    }
+
+    interface sx03 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2);
+
+        @Override
+        default int args() {
+            return 3;
+        }
+    }
+
+    interface sx04 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3);
+
+        @Override
+        default int args() {
+            return 4;
+        }
+    }
+
+    interface sx05 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4);
+
+        @Override
+        default int args() {
+            return 5;
+        }
+    }
+
+    interface sx06 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5);
+
+        @Override
+        default int args() {
+            return 6;
+        }
+    }
+
+    interface sx07 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6);
+
+        @Override
+        default int args() {
+            return 7;
+        }
+    }
+
+    interface sx08 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7);
+
+        @Override
+        default int args() {
+            return 8;
+        }
+    }
+
+    interface sx09 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8);
+
+        @Override
+        default int args() {
+            return 9;
+        }
+    }
+
+    interface sx10 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i();
+        }
+
+        Object i();
+
+        @Override
+        default int args() {
+            return 0;
+        }
+    }
+
+    interface sx010 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9);
+
+        @Override
+        default int args() {
+            return 10;
+        }
+    }
+
+    interface sx11 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0]);
+        }
+
+        Object i(Object a0);
+
+        @Override
+        default int args() {
+            return 1;
+        }
+    }
+
+    interface sx011 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10);
+
+        @Override
+        default int args() {
+            return 11;
+        }
+    }
+
+    interface sx12 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1]);
+        }
+
+        Object i(Object a0, Object a1);
+
+        @Override
+        default int args() {
+            return 2;
+        }
+    }
+
+    interface sx012 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11);
+
+        @Override
+        default int args() {
+            return 12;
+        }
+    }
+
+    interface sx13 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2]);
+        }
+
+        Object i(Object a0, Object a1, Object a2);
+
+        @Override
+        default int args() {
+            return 3;
+        }
+    }
+
+    interface sx013 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12);
+
+        @Override
+        default int args() {
+            return 13;
+        }
+    }
+
+    interface sx14 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3);
+
+        @Override
+        default int args() {
+            return 4;
+        }
+    }
+
+    interface sx014 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13);
+
+        @Override
+        default int args() {
+            return 14;
+        }
+    }
+
+    interface sx15 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4);
+
+        @Override
+        default int args() {
+            return 5;
+        }
+    }
+
+    interface sx015 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14);
+
+        @Override
+        default int args() {
+            return 15;
+        }
+    }
+
+    interface sx16 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5);
+
+        @Override
+        default int args() {
+            return 6;
+        }
+    }
+
+    interface sx016 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15);
+
+        @Override
+        default int args() {
+            return 16;
+        }
+    }
+
+    interface sx17 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6);
+
+        @Override
+        default int args() {
+            return 7;
+        }
+    }
+
+    interface sx017 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16);
+
+        @Override
+        default int args() {
+            return 17;
+        }
+    }
+
+    interface sx18 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7);
+
+        @Override
+        default int args() {
+            return 8;
+        }
+    }
+
+    interface sx018 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17);
+
+        @Override
+        default int args() {
+            return 18;
+        }
+    }
+
+    interface sx19 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8);
+
+        @Override
+        default int args() {
+            return 9;
+        }
+    }
+
+    interface sx019 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18);
+
+        @Override
+        default int args() {
+            return 19;
+        }
+    }
+
+    interface sx020 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19);
+
+        @Override
+        default int args() {
+            return 20;
+        }
+    }
+
+    interface sx021 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20);
+
+        @Override
+        default int args() {
+            return 21;
+        }
+    }
+
+    interface sx022 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21);
+
+        @Override
+        default int args() {
+            return 22;
+        }
+    }
+
+    interface sx023 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22);
+
+        @Override
+        default int args() {
+            return 23;
+        }
+    }
+
+    interface sx024 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23);
+
+        @Override
+        default int args() {
+            return 24;
+        }
+    }
+
+    interface sx025 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24);
+
+        @Override
+        default int args() {
+            return 25;
+        }
+    }
+
+    interface sx026 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25);
+
+        @Override
+        default int args() {
+            return 26;
+        }
+    }
+
+    interface sx027 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26);
+
+        @Override
+        default int args() {
+            return 27;
+        }
+    }
+
+    interface sx028 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26], args[27]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26, Object a27);
+
+        @Override
+        default int args() {
+            return 28;
+        }
+    }
+
+    interface sx029 extends sx0 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26], args[27], args[28]);
+            return null;
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26, Object a27, Object a28);
+
+        @Override
+        default int args() {
+            return 29;
+        }
+    }
+
+    interface sx110 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9);
+
+        @Override
+        default int args() {
+            return 10;
+        }
+    }
+
+    interface sx111 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10);
+
+        @Override
+        default int args() {
+            return 11;
+        }
+    }
+
+    interface sx112 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11);
+
+        @Override
+        default int args() {
+            return 12;
+        }
+    }
+
+    interface sx113 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12);
+
+        @Override
+        default int args() {
+            return 13;
+        }
+    }
+
+    interface sx114 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13);
+
+        @Override
+        default int args() {
+            return 14;
+        }
+    }
+
+    interface sx115 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14);
+
+        @Override
+        default int args() {
+            return 15;
+        }
+    }
+
+    interface sx116 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15);
+
+        @Override
+        default int args() {
+            return 16;
+        }
+    }
+
+    interface sx117 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16);
+
+        @Override
+        default int args() {
+            return 17;
+        }
+    }
+
+    interface sx118 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17);
+
+        @Override
+        default int args() {
+            return 18;
+        }
+    }
+
+    interface sx119 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18);
+
+        @Override
+        default int args() {
+            return 19;
+        }
+    }
+
+    interface sx120 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19);
+
+        @Override
+        default int args() {
+            return 20;
+        }
+    }
+
+    interface sx121 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20);
+
+        @Override
+        default int args() {
+            return 21;
+        }
+    }
+
+    interface sx122 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21);
+
+        @Override
+        default int args() {
+            return 22;
+        }
+    }
+
+    interface sx123 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22);
+
+        @Override
+        default int args() {
+            return 23;
+        }
+    }
+
+    interface sx124 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23);
+
+        @Override
+        default int args() {
+            return 24;
+        }
+    }
+
+    interface sx125 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24);
+
+        @Override
+        default int args() {
+            return 25;
+        }
+    }
+
+    interface sx126 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25);
+
+        @Override
+        default int args() {
+            return 26;
+        }
+    }
+
+    interface sx127 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26);
+
+        @Override
+        default int args() {
+            return 27;
+        }
+    }
+
+    interface sx128 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26], args[27]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26, Object a27);
+
+        @Override
+        default int args() {
+            return 28;
+        }
+    }
+
+    interface sx129 extends sx1 {
+        @Override
+        default Object invoke(@Nullable Object instance, Object... args) {
+            assert instance == null : "no instance required";
+            return i(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17], args[18], args[19], args[20], args[21], args[22], args[23], args[24], args[25], args[26], args[27], args[28]);
+        }
+
+        Object i(Object a0, Object a1, Object a2, Object a3, Object a4, Object a5, Object a6, Object a7, Object a8, Object a9, Object a10, Object a11, Object a12, Object a13, Object a14, Object a15, Object a16, Object a17, Object a18, Object a19, Object a20, Object a21, Object a22, Object a23, Object a24, Object a25, Object a26, Object a27, Object a28);
+
+        @Override
+        default int args() {
+            return 29;
+        }
+    }
+    //endregion
 }
