@@ -6,29 +6,9 @@
 </a>
 </p>
 
-# Invoker
 
-Java method, function, field to interface util.
 
-## Benchmark
-
-1. Each execute 100 times.
-2. `xxxObject` invokes method accept an Integer.And also have box time casts.
-
-```text
-Benchmark                                     Mode  Cnt     Score    Error  Units
-InvokerBenchmarkTest.direct                   avgt   18   284.397 ±  0.535  ns/op
-InvokerBenchmarkTest.directObject             avgt   18   707.437 ±  1.298  ns/op
-InvokerBenchmarkTest.invoker                  avgt   18   636.802 ±  2.007  ns/op
-InvokerBenchmarkTest.invokerObject            avgt   18   636.011 ±  1.241  ns/op
-InvokerBenchmarkTest.invokerUnder             avgt   18   659.157 ±  2.122  ns/op
-InvokerBenchmarkTest.invokerUnderObject       avgt   18   740.227 ±  3.459  ns/op
-InvokerBenchmarkTest.reflect                  avgt   18   940.523 ± 45.790  ns/op
-InvokerBenchmarkTest.reflectObject            avgt   18  1108.931 ±  5.922  ns/op
-
-```
-
-## Usage
+# Usage
 
 ```xml
 
@@ -129,6 +109,28 @@ public static class SomePojo {
       assertEquals(123, acc.getter.get(i));
    }
 ```
+
+# Invoker
+
+Java method, function, field to interface util.
+
+## Benchmark
+
+1. Each execute 100 times.
+2. `xxxObject` invokes method accept an Integer.And also have box time casts.
+
+```text
+Benchmark                                     Mode  Cnt     Score    Error  Units
+InvokerBenchmarkTest.direct                   avgt   18   284.397 ±  0.535  ns/op
+InvokerBenchmarkTest.directObject             avgt   18   707.437 ±  1.298  ns/op
+InvokerBenchmarkTest.invoker                  avgt   18   636.802 ±  2.007  ns/op
+InvokerBenchmarkTest.invokerObject            avgt   18   636.011 ±  1.241  ns/op
+InvokerBenchmarkTest.invokerUnder             avgt   18   659.157 ±  2.122  ns/op
+InvokerBenchmarkTest.invokerUnderObject       avgt   18   740.227 ±  3.459  ns/op
+InvokerBenchmarkTest.reflect                  avgt   18   940.523 ± 45.790  ns/op
+InvokerBenchmarkTest.reflectObject            avgt   18  1108.931 ±  5.922  ns/op
+
+``
 
 # Accessor
 
